@@ -1,0 +1,1 @@
+BOT_TOKEN = '6765679865:AAEIsNJD3vCXUkWONfWh6pH6QynP23oUF5s'  # api_token бота, полученый от @BotFather
