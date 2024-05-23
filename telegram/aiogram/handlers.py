@@ -7,6 +7,7 @@ import config
 
 # https://mastergroosha.github.io/aiogram-3-guide/messages/
 
+bot = aiogram.Bot(token=config.BOT_TOKEN, parse_mode=aiogram.enums.ParseMode.HTML)
 router = Router()
 
 
@@ -40,7 +41,7 @@ async def message_handler(msg: Message):
     #await msg.answer(type(msg))
 
 @router.message(F.text)
-async def echo_with_time(message: Message):
+async def echo_with_format(message: Message):
     message_text = message.text  # Не сохраняет исходное форматирование
     message_html_text = message.html_text  # Сохраняет исходное форматирование
     # Создаём подчёркнутый текст
@@ -72,3 +73,16 @@ async def pay(message: Message, bot: aiogram.Bot):
     suggested_tip_amounts=[1000, 2000, 3000],
     request_timeout=15
     )
+
+@router.message(content_types=aiogram.enums.ContentType.SUCCESSFUL_PAYMENT)
+async def process_successful_payment(message: Message):
+    print('successful_payment:')
+    pmnt = message.successful_payment.to_python()
+    for key, val in pmnt.items():
+        print(f'{key} = {val}')
+
+    await bot.send_message(
+        message.chat.id,f'successful_payment:\n '
+                        f'total_amount: {message.successful_payment.total_amount // 100}\n'
+                        f'currency: {message.successful_payment.currency}'
+        )
