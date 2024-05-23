@@ -10,3 +10,5 @@ import ctypes
 lib = ctypes.cdll.LoadLibrary("./this_is_go.so")
 #lib.hello_go.argtypes = [ctypes.c_longlong, ctypes.c_longlong]  # Если функция принимает аргументы, то указываем их типы
 print(lib.hello_go())
+
+# В обратную сторону: https://github.com/google/grumpy
