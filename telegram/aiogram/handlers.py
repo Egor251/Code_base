@@ -47,3 +47,28 @@ async def echo_with_time(message: Message):
     added_text = html.underline(f"Подчёркнутый текст:")  # Сделает текст подчёркнутым
     # Отправляем новое сообщение с добавленным текстом
     await message.answer(f"{message.html_text}\n\n{added_text}", parse_mode="HTML")  # parse_mode=HTML обязательно, иначе не отображается подчёркнутый текст
+
+@router.message(Command("buy"))
+async def pay(message: Message, bot: aiogram.Bot):
+    await bot.send_invoice(
+        chat_id=message.chat.id,            # id чата
+        title="Товар",                      # Название товара
+        description="Описание товара",      # Описание товара
+        payload="payload",                  # Дополнительная информация
+        provider_token="provider_token",    # Токен провайдера  https://core.telegram.org/bots/payments
+        start_parameter="start_parameter",  # Надо выяснить...
+        currency="rub",                     # Валюта
+        prices=[
+            aiogram.types.LabeledPrice(
+                label="Товар 1",
+                amount=1000                 # Стоимость товара в копейках! То есть это 10 рублей
+            ),
+            aiogram.types.LabeledPrice(
+                label="Товар 2",
+                amount=2000                 # Стоимость товара в копейках! То есть это 20 рублей
+            )
+        ],
+    max_tip_amount=5000,
+    suggested_tip_amounts=[1000, 2000, 3000],
+    request_timeout=15
+    )
