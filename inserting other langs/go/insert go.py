@@ -12,3 +12,8 @@ lib = ctypes.cdll.LoadLibrary("./this_is_go.so")
 print(lib.hello_go())
 
 # В обратную сторону: https://github.com/google/grumpy
+
+lib.Echo.argtypes = [ctypes.c_char_p]  # работа со строками
+lib.Echo.restype = ctypes.c_char_p
+
+print(lib.Echo('hello'.encode()).decode())
