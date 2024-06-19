@@ -3,6 +3,9 @@ from typing import Optional
 import re
 from pydantic import BaseModel, Field, field_validator
 
+# http://127.0.0.1:8000/docs
+# http://127.0.0.1:8000/redocs
+
 
 class KeyEnum(Enum):
     registration = 'registration'
