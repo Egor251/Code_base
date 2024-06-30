@@ -1,10 +1,11 @@
 import xlsxwriter
 
-def make_xlsx(input_data, name="excel.xlsx"):
+# headers = ['Столбец 1', 'Столбец 2', 'Столбец 3']
+def make_xlsx(input_data, headers, name="excel.xlsx"):
 
     workbook = xlsxwriter.Workbook(name)  # Создаем xlsx-файл
 
-    head = ['Столбец 1', 'Столбец 2', 'Столбец 3']
+
 
     header = workbook.add_format({'bold': True, 'font_size': 11, 'border': True})  # Формат шрифта для шапки
     header.set_text_wrap()
@@ -19,8 +20,8 @@ def make_xlsx(input_data, name="excel.xlsx"):
     worksheet.set_column('F:F', 15)
 
     row = 0  # Счётчик строк
-    for i in range(len(head)):  # Записываем заголовок
-        worksheet.write(row, i, head[i], header)
+    for i in range(len(headers)):  # Записываем заголовок
+        worksheet.write(row, i, headers[i], header)
     row += 1
 
     for item in input_data:
