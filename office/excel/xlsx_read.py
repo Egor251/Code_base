@@ -1,9 +1,9 @@
-import xlrd
+import xlrd  # Обязательно версия 1.2.0
 
-def read_xlsx(file_path):
+def read_xlsx(file_path, list_index):
     output_list = []  # Выходной список
     rb = xlrd.open_workbook(file_path)  # Читаем xlsx-файл
-    sheet = rb.sheet_by_index(0)  # Указываем нужный лист
+    sheet = rb.sheet_by_index(list_index)  # Указываем нужный лист 0, 1, 2 и т.д.
     for row_num in range(sheet.nrows):  # Считываем файл построчно
         output_list.append(sheet.row_values(row_num))  # Вносим в выходной список
 

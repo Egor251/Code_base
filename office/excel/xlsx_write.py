@@ -5,8 +5,6 @@ def make_xlsx(input_data, headers, name="excel.xlsx"):
 
     workbook = xlsxwriter.Workbook(name)  # Создаем xlsx-файл
 
-
-
     header = workbook.add_format({'bold': True, 'font_size': 11, 'border': True})  # Формат шрифта для шапки
     header.set_text_wrap()
     usual = workbook.add_format({'border': True})  # Формат шрифта для всех остальных записей
