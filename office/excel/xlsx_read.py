@@ -11,4 +11,4 @@ def read_xlsx(file_path, list_index):
 
 
 if __name__ == "__main__":
-    print(read_xlsx('test.xlsx'))
+    print(read_xlsx('test.xlsx', 0))
