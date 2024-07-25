@@ -3,22 +3,24 @@ from aiogram import Router, F, html
 import asyncio
 from aiogram.types import Message
 from aiogram.filters import Command
+from aiogram.client.bot import DefaultBotProperties
+from aiogram.enums.parse_mode import ParseMode
+from aiogram import Bot, Dispatcher
 import config
+
+import inline_keyboard
 
 # https://mastergroosha.github.io/aiogram-3-guide/messages/
 
-bot = aiogram.Bot(token=config.BOT_TOKEN, parse_mode=aiogram.enums.ParseMode.HTML)
+# bot = Bot(token=config.BOT_TOKEN, parse_mode=ParseMode.HTML)  aiogram < 3.8
+bot = Bot(token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))  # aiogram > 3.8
 router = Router()
 
 
-@router.message(Command("button"))  # Рисуем кнопки
+@router.message(Command("button"))  # Рисуем inline кнопки
 async def button_handler(msg: Message):
-    kb = [
-        [aiogram.types.KeyboardButton(text="1")],
-        [aiogram.types.KeyboardButton(text="1")]
-    ]
-    keyboard = aiogram.types.ReplyKeyboardMarkup(keyboard=kb)
-    await msg.answer("Кнопки", reply_markup=keyboard)  # Пишет ответ и добавляет кнопки
+
+    await msg.answer(inline_keyboard.price_message, reply_markup=inline_keyboard.keyboard)  # Пишет ответ и добавляет кнопки
 
 @router.message(Command("start"))  # Обработка команды /start, отправленной боту
 async def start_handler(msg: Message):
@@ -49,40 +51,41 @@ async def echo_with_format(message: Message):
     # Отправляем новое сообщение с добавленным текстом
     await message.answer(f"{message.html_text}\n\n{added_text}", parse_mode="HTML")  # parse_mode=HTML обязательно, иначе не отображается подчёркнутый текст
 
-@router.message(Command("buy"))
-async def pay(message: Message, bot: aiogram.Bot):
+@router.callback_query()
+async def callback_query_handler(query: aiogram.types.CallbackQuery):
+
+    await bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.message_id)  # Удаляем сообщение с кнопками так как больше не нужны
+
+
+    await bot.answer_callback_query(query.id)  # Отвечаем обратно кнопке, что она была нажата
+
     await bot.send_invoice(
-        chat_id=message.chat.id,            # id чата
-        title="Товар",                      # Название товара
-        description="Описание товара",      # Описание товара
-        payload="payload",                  # Дополнительная информация
-        provider_token="provider_token",    # Токен провайдера  https://core.telegram.org/bots/payments
+        chat_id=query.message.chat.id,  # id чата
+        title='Товар 1',  # Название товара
+        description=config.subscribe_description,  # Описание товара
+        payload=str('Важная штука, её будем отлавливать далее'),  # Дополнительная информация
+        provider_token=config.payment_token,  # Токен провайдера  https://core.telegram.org/bots/payments
         start_parameter="start_parameter",  # Надо выяснить...
-        currency="rub",                     # Валюта
-        prices=[
-            aiogram.types.LabeledPrice(
-                label="Товар 1",
-                amount=1000                 # Стоимость товара в копейках! То есть это 10 рублей
-            ),
-            aiogram.types.LabeledPrice(
-                label="Товар 2",
-                amount=2000                 # Стоимость товара в копейках! То есть это 20 рублей
-            )
-        ],
-    max_tip_amount=5000,
-    suggested_tip_amounts=[1000, 2000, 3000],
-    request_timeout=15
+        currency="rub",  # Валюта
+        prices=[aiogram.types.LabeledPrice(
+                label='Товар 1',  # Наименование товара
+                amount='1000'  # Стоимость товара в копейках!
+                )],
+        max_tip_amount=5000,
+        suggested_tip_amounts=[1000, 2000, 3000],
+        request_timeout=15
     )
 
-@router.message(content_types=aiogram.enums.ContentType.SUCCESSFUL_PAYMENT)
+@router.pre_checkout_query(lambda query: True)  # Проверка на корректность оплаты
+async def pre_checkout_handler(query: aiogram.types.PreCheckoutQuery):
+    print('Чекаут')
+    await bot.answer_pre_checkout_query(query.id, ok=True)  # ok=True позволяет оплатить с помощью кнопки
+
+
+@router.message(F.successful_payment)  # функция выполнится после успешной оплаты  (F.successful_payment) Капец важно!
 async def process_successful_payment(message: Message):
-    print('successful_payment:')
-    pmnt = message.successful_payment.to_python()
-    for key, val in pmnt.items():
-        print(f'{key} = {val}')
+
+    user_id = message.chat.id  # получаем id пользователя для внесения в базу
 
     await bot.send_message(
-        message.chat.id,f'successful_payment:\n '
-                        f'total_amount: {message.successful_payment.total_amount // 100}\n'
-                        f'currency: {message.successful_payment.currency}'
-        )
+        message.chat.id, f'Спасибо за покупку!')

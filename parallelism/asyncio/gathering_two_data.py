@@ -1,44 +1,43 @@
 import asyncio
 
-async def first_async_function():
+# Код будет непрерывно получать данные из двух источников, а третья функция выполнится если хоть одна из функций получит данные
+async def get_data_1():
+
+    return "Data 1"
+
+async def get_data_2():
+    return 'Data 2'
+
+async def process_data(data):
+    print(data)
+
+
+async def function_1(queue):
     while True:
-        # Simulate an asynchronous operation
+        data = await get_data_1()  # заменить на реальный код получения данных
+        await queue.put(data)  # отправляем данные в очередь
         await asyncio.sleep(2)
-        return 'First function finished'
 
-async def second_async_function():
+
+async def function_2(queue):
     while True:
-        # Simulate an asynchronous operation
-        await asyncio.sleep(10)
-        return 'Second function finished'
+        data = await get_data_2()  # заменить на реальный код получения данных
+        await queue.put(data)  # отправляем данные в очередь
+        await asyncio.sleep(5)
 
-async def third_function():
+
+async def function_3(queue):
     while True:
-        # Simulate an asynchronous operation
-        await asyncio.sleep(1)
-
-async def third_async_function():
-    task1 = asyncio.create_task(first_async_function())
-    task2 = asyncio.create_task(second_async_function())
-
-    while True:
-        # Wait for the first function to finish
-        data1 = await asyncio.wait_for(task1, timeout=None)
-        print(data1)
-
-        # Start the third function while the second function is still running
-        if data1 == 'First function finished':
-            print('Third function started')
-            task3 = asyncio.create_task(third_function())
-            await asyncio.sleep(1)  # Simulating some work
-            print('Third function finished')
-
-        # Wait for the second function to finish
-        data2 = await asyncio.wait_for(task2, timeout=None)
-        print(data2)
+        data = await queue.get()  # получаем данные из очереди
+        await process_data(data)  # заменить на реальный код обработки данных
 
 async def main():
-    while True:
-        await third_async_function()
+    queue = asyncio.Queue()
+
+    task1 = asyncio.create_task(function_1(queue))
+    task2 = asyncio.create_task(function_2(queue))
+    task3 = asyncio.create_task(function_3(queue))
+
+    await asyncio.gather(task1, task2, task3)
 
 asyncio.run(main())
