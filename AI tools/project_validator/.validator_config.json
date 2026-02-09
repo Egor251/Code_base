@@ -1,0 +1,36 @@
+{
+  "ignored_dirs": [
+    ".git",
+    "__pycache__",
+    "venv",
+    ".venv",
+    "env",
+    "node_modules",
+    "dist",
+    "build",
+    ".mypy_cache",
+    ".pytest_cache"
+  ],
+  "max_file_size_kb": 200,
+  "max_line_length": 120,
+  "max_function_lines": 80,
+  "max_nesting_depth": 6,
+  "check_security": true,
+  "check_performance": true,
+  "check_style": true,
+  "enforce_type_hints": false,
+  "require_docstrings": false,
+  "output_file": "validation_report.txt",
+  "filters": {
+    "min_severity": "WARNING",
+    "max_issues_per_file": 5,
+    "max_issues_per_category": 20,
+    "ignore_patterns": ["TRAILING_WHITESPACE"],
+    "show_all": false
+  },
+  "allowed_dangerous_functions": [
+    "pickle.loads",
+    "yaml.load"
+  ],
+
+}
